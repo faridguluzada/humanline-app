@@ -1,0 +1,78 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+    directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+enum EmployeeStatus {
+    ACTIVE
+    ON_BOARDING
+    PROBATION
+    ON_LEAVE
+}
+
+enum MaritalStatus {
+    SINGLE
+    MARRIED
+}
+
+enum Gender {
+    MALE
+    FEMALE
+}
+
+model Job {
+    id       Int        @id @default(autoincrement())
+    title    String     @unique
+    Employee Employee[]
+}
+
+model Department {
+    id       Int        @id @default(autoincrement())
+    name     String     @unique
+    Employee Employee[]
+}
+
+model Office {
+    id       Int        @id @default(autoincrement())
+    name     String     @unique
+    Employee Employee[]
+}
+
+model Employee {
+    id              String         @id @default(uuid())
+    createdAt       DateTime       @default(now())
+    updatedAt       DateTime       @updatedAt
+    firstName       String
+    lastName        String
+    email           String         @unique
+    joinDate        DateTime
+    image           String?
+    selected        Boolean        @default(false)
+    status          EmployeeStatus @default(ACTIVE)
+    nationality     String?
+    dateOfBirth     DateTime?
+    phone           String?
+    maritalStatus   MaritalStatus?
+    gender          Gender?
+    job             Job?           @relation(fields: [jobId], references: [id])
+    jobId           Int?
+    department      Department?    @relation(fields: [departmentId], references: [id])
+    departmentId    Int?
+    lineManager     Employee?      @relation("LineManager", fields: [lineManagerId], references: [id])
+    lineManagerId   String?
+    office          Office?        @relation(fields: [officeId], references: [id])
+    officeId        Int?
+    account         String?
+    socialInsurance String?
+    primaryAddress  String?
+    country         String?
+    city            String?
+    postCode        String?
+
+    employees Employee[] @relation("LineManager")
+}
